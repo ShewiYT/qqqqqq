@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antichrist · Payoff snapshot</title>
+    <!-- Шрифты: Cinzel для акцентов, Montserrat для основного текста -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><path d="M15 15 L105 15 M15 45 L105 45 M15 75 L105 75 M15 105 L105 105 M15 15 L15 105 M45 15 L45 105 M75 15 L75 105 M105 15 L105 105" stroke="%232b2b2b" stroke-width="0.5" opacity="0.25"/></svg>'), 
+                        radial-gradient(circle at 20% 30%, #1e1b1b 0%, #070505 100%);
+            background-size: 120px 120px, cover;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            position: relative;
+        }
+
+        /* Размытый слой поверх фона */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            backdrop-filter: blur(10px) brightness(0.5);
+            -webkit-backdrop-filter: blur(10px) brightness(0.5);
+            background-color: rgba(0, 0, 0, 0.2);
+            z-index: 0;
+        }
+
+        /* Контейнер для переключения экранов */
+        .app-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 900px;
+            transition: all 0.3s ease;
+        }
+
+        /* Стили для формы ввода (первый экран) */
+        .input-screen {
+            background: rgba(5, 5, 5, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(110, 25, 25, 0.35);
+            padding: 2.5rem;
+            box-shadow: 0 30px 60px -20px black, inset 0 0 40px rgba(80, 0, 0, 0.2);
+            border-radius: 1px;
+            position: relative;
+            color: #ddd0d0;
+        }
+
+        .input-screen h2 {
+            font-family: 'Cinzel', serif;
+            font-weight: 400;
+            font-size: 24px;
+            letter-spacing: 6px;
+            text-align: center;
+            color: #803737;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #2f1b1b;
+            padding-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #7a5656;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            background: rgba(20, 10, 10, 0.6);
+            border: 1px solid #3d2424;
+            padding: 12px 16px;
+            font-family: 'Cinzel', serif;
+            font-size: 16px;
+            color: #ddd0d0;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: #803737;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: transparent;
+            border: 1px solid #803737;
+            color: #803737;
+            font-family: 'Cinzel', serif;
+            font-size: 18px;
+            letter-spacing: 4px;
+            padding: 15px;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        .submit-btn:hover {
+            background: #803737;
+            color: #050505;
+        }
+
+        /* Модальное окно с результатом (второй экран) */
+        .modal {
+            background: rgba(5, 5, 5, 0.7);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="2" stitchTiles="stitch"/></filter><rect width="400" height="400" filter="url(%23f)" opacity="0.05"/></svg>'),
+                              radial-gradient(circle at 70% 30%, rgba(70, 20, 20, 0.2) 0%, transparent 60%);
+            background-blend-mode: overlay, normal;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(110, 25, 25, 0.35);
+            box-shadow: 0 30px 60px -20px black, inset 0 0 40px rgba(80, 0, 0, 0.2);
+            padding: 2.5rem 2.5rem 3.5rem 2.5rem; /* увеличен нижний отступ для кнопки */
+            border-radius: 1px;
+            position: relative;
+            color: #ddd0d0;
+            display: none; /* скрыт по умолчанию */
+        }
+
+        /* Декоративные элементы */
+        .modal__line {
+            position: absolute;
+            left: 30px;
+            right: 30px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #612525, #a13535, #612525, transparent);
+            opacity: 0.4;
+        }
+        .modal__line--top { top: 18px; }
+        .modal__line--bottom { bottom: 18px; }
+
+        .modal__vertical {
+            position: absolute;
+            top: 30px;
+            bottom: 30px;
+            width: 1px;
+            background: linear-gradient(to bottom, transparent, #631e1e, #8f2d2d, #631e1e, transparent);
+            opacity: 0.3;
+        }
+        .modal__vertical--left { left: 25px; }
+        .modal__vertical--right { right: 25px; }
+
+        .a-emblem {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            width: 42px;
+            height: 42px;
+            border: 1.2px solid #632b2b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            font-size: 26px;
+            color: #632b2b;
+            background: rgba(15, 5, 5, 0.4);
+            box-shadow: 0 0 10px #2f0808;
+            opacity: 0.9;
+        }
+
+        .tiny-cross {
+            position: absolute;
+            top: 28px;
+            right: 38px;
+            font-family: 'Cinzel', serif;
+            font-size: 24px;
+            color: #411f1f;
+            opacity: 0.25;
+            font-weight: 300;
+        }
+
+        .protocol-header {
+            font-family: 'Cinzel', serif;
+            font-weight: 400;
+            font-size: 16px;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: #5b3e3e;
+            text-align: center;
+            border-bottom: 1px solid #2f1b1b;
+            padding-bottom: 18px;
+            margin-bottom: 36px;
+            margin-top: 20px;
+        }
+        .protocol-header span {
+            color: #803737;
+            font-weight: 600;
+            margin: 0 8px;
+        }
+
+        .grid-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px 48px;
+            margin-bottom: 48px;
+        }
+
+        .field {
+            border-bottom: 1px solid rgba(130, 35, 35, 0.3);
+            padding-bottom: 10px;
+        }
+        .field__label {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #7a5656;
+            margin-bottom: 6px;
+        }
+        .field__value {
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+            font-size: 24px;
+            color: #ddd0d0;
+            text-shadow: 2px 2px 5px #160000;
+            line-height: 1.2;
+        }
+        .field__value .currency {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 18px;
+            font-weight: 400;
+            color: #a56e6e;
+            margin-left: 6px;
+        }
+
+        .field--full {
+            grid-column: span 2;
+        }
+        .field--full .field__value {
+            font-size: 26px;
+        }
+
+        .blood-note {
+            text-align: right;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 10px;
+            letter-spacing: 3px;
+            color: #352727;
+            text-transform: uppercase;
+            margin-top: -16px;
+            margin-bottom: 28px;
+        }
+
+        .footer-payoff {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid #2a1818;
+            padding-top: 22px;
+            margin-top: 6px;
+            margin-bottom: 15px;
+        }
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .mini-a {
+            width: 34px;
+            height: 34px;
+            border: 1px solid #572626;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cinzel', serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: #803737;
+            background: #0f0606;
+        }
+        .footer-text {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+            font-size: 14px;
+            letter-spacing: 3px;
+            color: #634a4a;
+            text-transform: uppercase;
+        }
+        .footer-text strong {
+            font-family: 'Cinzel', serif;
+            font-weight: 500;
+            color: #994343;
+        }
+        .footer-signature {
+            font-family: 'Cinzel', serif;
+            font-size: 13px;
+            color: #452b2b;
+            letter-spacing: 2px;
+            border-left: 1px solid #3b2020;
+            padding-left: 24px;
+        }
+
+        .marble-patina {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300"><path d="M50 90 Q 100 40 160 100 T 250 70" stroke="%23552626" fill="none" stroke-width="0.4" opacity="0.1"/><path d="M30 210 Q 100 270 200 200 T 280 240" stroke="%234d1e1e" fill="none" stroke-width="0.4" opacity="0.1"/><path d="M200 40 L 230 70 M 70 270 L 100 250" stroke="%23663333" stroke-width="0.5" opacity="0.07"/></svg>');
+            background-repeat: repeat;
+            opacity: 0.35;
+            mix-blend-mode: soft-light;
+            border-radius: inherit;
+        }
+
+        /* Кнопка сброса — спущена ниже, под футер */
+        .reset-btn {
+            width: calc(100% - 60px);
+            position: absolute;
+            bottom: 20px;
+            left: 30px;
+            right: 30px;
+            background: transparent;
+            border: 1px solid #3d2424;
+            color: #634a4a;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 12px;
+            letter-spacing: 3px;
+            padding: 12px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .reset-btn:hover {
+            border-color: #803737;
+            color: #803737;
+            background: rgba(128, 55, 55, 0.1);
+        }
+
+        @media (max-width: 600px) {
+            .modal { padding: 1.8rem 1.8rem 4rem 1.8rem; }
+            .grid-fields { grid-template-columns: 1fr; gap: 20px; }
+            .field--full { grid-column: span 1; }
+            .form-row { grid-template-columns: 1fr; }
+            .reset-btn { width: calc(100% - 36px); left: 18px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Экран 1: Форма ввода -->
+        <div id="inputScreen" class="input-screen">
+            <div class="marble-patina"></div>
+            <div class="modal__line modal__line--top"></div>
+            <div class="modal__line modal__line--bottom"></div>
+            
+            <h2>✧  ENTER DATA  ✧</h2>
+            
+            <form id="dataForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>STEAM VALUE ($)</label>
+                        <input type="number" id="steamValue" value="15500.00" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ПРОДАЛИСЬ ЗА ($)</label>
+                        <input type="number" id="soldFor" value="8200.00" step="0.01" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>ЧАТЕР</label>
+                        <input type="text" id="chater" value="@mrakobes_666" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ХЕЛПЕР</label>
+                        <input type="text" id="helper" value="@lucifer_dev" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>НИК МАМОНТА</label>
+                    <input type="text" id="mammoth" value="KILLER_KROSH_94" required>
+                </div>
+                
+                <button type="submit" class="submit-btn">⸻  FIX PAYMENT  ⸻</button>
+            </form>
+            
+            <div style="position: absolute; bottom: 15px; left: 35px; color: #3d1e1e; opacity: 0.1; font-size: 18px;">⚰️</div>
+        </div>
+
+        <!-- Экран 2: Модальное окно с результатом -->
+        <div id="resultScreen" class="modal">
+            <div class="marble-patina"></div>
+            <div class="modal__line modal__line--top"></div>
+            <div class="modal__line modal__line--bottom"></div>
+            <div class="modal__vertical modal__vertical--left"></div>
+            <div class="modal__vertical modal__vertical--right"></div>
+            
+            <div class="a-emblem">A</div>
+            <div class="tiny-cross">†</div>
+
+            <div class="protocol-header">
+                <span>✧</span>  FIXATION  OF  PAYMENT  <span>✧</span>
+            </div>
+
+            <div class="grid-fields" id="resultFields">
+                <!-- Данные будут вставлены динамически -->
+            </div>
+
+            <div class="blood-note">⸻  sanguis  et  tenebrae  ⸻</div>
+
+            <div class="footer-payoff">
+                <div class="footer-left">
+                    <div class="mini-a">A</div>
+                    <div class="footer-text"><strong>ANTICHRIST</strong> ·  TENEBRIS</div>
+                </div>
+                <div class="footer-signature">PAYOFF  PROTOCOL</div>
+            </div>
+
+            <!-- Кнопка для возврата к форме — спущена ниже -->
+            <button id="resetBtn" class="reset-btn">✧  CREATE NEW PAYMENT  ✧</button>
+
+            <div style="position: absolute; bottom: 12px; right: 35px; color: #3d1e1e; opacity: 0.15; font-size: 22px;">⚔️</div>
+            <div style="position: absolute; bottom: 15px; left: 35px; color: #3d1e1e; opacity: 0.1; font-size: 18px;">⚰️</div>
+        </div>
+    </div>
+
+    <script>
+        // Получаем ссылки на элементы
+        const inputScreen = document.getElementById('inputScreen');
+        const resultScreen = document.getElementById('resultScreen');
+        const dataForm = document.getElementById('dataForm');
+        const resultFields = document.getElementById('resultFields');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // Функция для обновления данных в результате
+        function updateResultData() {
+            // Получаем значения из формы
+            const steamValue = document.getElementById('steamValue').value;
+            const soldFor = document.getElementById('soldFor').value;
+            const chater = document.getElementById('chater').value;
+            const helper = document.getElementById('helper').value;
+            const mammoth = document.getElementById('mammoth').value;
+
+            // Форматируем числа (добавляем .00 если нужно)
+            const formatMoney = (value) => {
+                const num = parseFloat(value).toFixed(2);
+                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            };
+
+            // Создаем HTML для полей результата
+            resultFields.innerHTML = `
+                <div class="field">
+                    <div class="field__label">STEAM VALUE</div>
+                    <div class="field__value">${formatMoney(steamValue)}<span class="currency">$</span></div>
+                </div>
+                <div class="field">
+                    <div class="field__label">ПРОДАЛИСЬ ЗА</div>
+                    <div class="field__value">${formatMoney(soldFor)}<span class="currency">$</span></div>
+                </div>
+                <div class="field">
+                    <div class="field__label">ЧАТЕР</div>
+                    <div class="field__value">${chater}</div>
+                </div>
+                <div class="field">
+                    <div class="field__label">ХЕЛПЕР</div>
+                    <div class="field__value">${helper}</div>
+                </div>
+                <div class="field field--full">
+                    <div class="field__label">НИК МАМОНТА</div>
+                    <div class="field__value">${mammoth}</div>
+                </div>
+            `;
+        }
+
+        // Обработчик отправки формы
+        dataForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Обновляем данные в результате
+            updateResultData();
+            
+            // Переключаем экраны
+            inputScreen.style.display = 'none';
+            resultScreen.style.display = 'block';
+        });
+
+        // Обработчик кнопки создания нового платежа
+        resetBtn.addEventListener('click', function() {
+            resultScreen.style.display = 'none';
+            inputScreen.style.display = 'block';
+        });
+
+        // Инициализация: показываем форму, скрываем результат
+        inputScreen.style.display = 'block';
+        resultScreen.style.display = 'none';
+    </script>
+</body>
+</html>
