@@ -2,450 +2,813 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-GEN • IP TRAFFIC MONITOR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title> NEON DB · файловая база данных</title>
     <style>
-        body {
+        * {
             margin: 0;
-            padding: 20px;
-            background: #0a0f1e;
-            font-family: 'Courier New', monospace;
-            color: #00ff9d;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
             min-height: 100vh;
+            background: radial-gradient(circle at 30% 40%, #1a1f3a, #0a0c10 80%);
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            padding: 1rem;
         }
-        
+
         .container {
-            max-width: 1200px;
+            max-width: 1800px;
             width: 100%;
-            background: rgba(10, 20, 15, 0.7);
-            border: 1px solid #00ff9d;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 0 30px rgba(0, 255, 157, 0.15);
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            gap: 1.8rem;
+            align-items: start;
         }
-        
-        .header {
+
+        .card {
+            background: rgba(18, 22, 40, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 2rem;
+            padding: 1.8rem 1.8rem 2.2rem;
+            box-shadow: 0 0 18px rgba(0, 255, 255, 0.25), inset 0 0 6px rgba(0, 255, 255, 0.2);
+            transition: box-shadow 0.3s ease, border-color 0.2s;
+            color: #f0f4ff;
+        }
+
+        .card:hover {
+            box-shadow: 0 0 30px #00ffff80, 0 0 10px #00ffff inset;
+            border-color: #7fffff;
+        }
+
+        h2 {
+            font-weight: 400;
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 1.8rem;
+            text-shadow: 0 0 8px cyan, 0 0 18px cyan;
+            border-bottom: 1px dashed rgba(0, 255, 255, 0.5);
+            padding-bottom: 0.7rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.4rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #a0c0ff;
+            margin-left: 0.3rem;
+        }
+
+        input, .radio-group {
+            background: rgba(8, 12, 25, 0.7);
+            border: 1.5px solid #2c3a70;
+            border-radius: 40px;
+            padding: 0.8rem 1.4rem;
+            font-size: 1rem;
+            color: #ffffff;
+            outline: none;
+            transition: all 0.2s;
+            box-shadow: 0 0 5px #00a0ff40;
+        }
+
+        input:focus {
+            border-color: #00ffff;
+            box-shadow: 0 0 20px #00ffff, inset 0 0 5px #ffffff40;
+            background: #0b1022;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 2rem;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            padding: 0.4rem 0;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            cursor: pointer;
+            font-size: 1.1rem;
+            background: rgba(0, 255, 255, 0.08);
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            border: 1px solid #00b8b8;
+            transition: 0.2s;
+        }
+
+        .radio-option input[type="radio"] {
+            appearance: none;
+            width: 1.2rem;
+            height: 1.2rem;
+            border: 2px solid #0ff;
+            border-radius: 50%;
+            background: transparent;
+            transition: 0.15s;
+        }
+        .radio-option input[type="radio"]:checked {
+            background: #0ff;
+            box-shadow: 0 0 15px cyan;
+            border: 2px solid white;
+        }
+        .radio-option:has(input:checked) {
+            background: rgba(0, 255, 255, 0.25);
+            border-color: cyan;
+            box-shadow: 0 0 18px cyan;
+        }
+
+        .conditional-field {
+            transition: opacity 0.3s ease;
+        }
+        .conditional-field.hidden {
+            display: none;
+        }
+
+        .calculate-btn {
+            background: linear-gradient(145deg, #ff3eb5, #7700ff);
+            border: none;
+            border-radius: 60px;
+            padding: 1rem 2rem;
+            width: 100%;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #fff;
+            text-shadow: 0 0 6px #ffb0fd;
+            box-shadow: 0 0 30px #ff3eb5, 0 0 10px #a555ff;
+            margin-top: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #ffffff80;
+        }
+
+        .calculate-btn:hover {
+            box-shadow: 0 0 60px #ff80d0, 0 0 20px #b266ff;
+            transform: scale(1.02);
+        }
+
+        /* правая карточка */
+        .result-block {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .distr-label {
+            font-size: 0.9rem;
+            color: #b0d0ff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .distr-sum {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            text-shadow: 0 0 12px #00ffbf;
+            color: #ccffff;
+            margin-bottom: 0.75rem;
+        }
+
+        .result-line {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            border-bottom: 1px dashed rgba(0, 255, 255, 0.3);
+            padding: 0.5rem 0.2rem;
+            font-size: 1.1rem;
+        }
+
+        .role-value {
+            font-weight: 800;
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+        }
+
+        .worker .role-value { color: #7df9ff; text-shadow: 0 0 8px #0ff; }
+        .chatter .role-value { color: #ffb77c; text-shadow: 0 0 8px #ff9900; }
+        .helper .role-value { color: #a0ff9e; text-shadow: 0 0 8px #00ff80; }
+        .newton .role-value { color: #ff99f0; text-shadow: 0 0 8px #ff44cc; }
+        .megafrishka .role-value { color: #c397ff; text-shadow: 0 0 8px #b266ff; }
+
+        .meta-line {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 0.8rem;
+            background: rgba(0, 255, 255, 0.05);
+            padding: 0.7rem 1rem;
+            border-radius: 3rem;
+            border: 1px solid #00b8b8;
+            font-size: 0.95rem;
+            word-break: break-word;
+        }
+
+        /* статус базы данных */
+        .db-status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            background: #0f142aa0;
+            padding: 0.7rem 1.5rem;
+            border-radius: 60px;
+            border: 1px solid #ff66cc;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .db-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .db-led {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #0f0;
+            box-shadow: 0 0 12px #0f0;
+        }
+        .db-led.off {
+            background: #ff4444;
+            box-shadow: 0 0 12px #f00;
+        }
+
+        .history-section {
+            margin-top: 2rem;
+            border-top: 2px solid #00ffff60;
+            padding-top: 1.5rem;
+        }
+
+        .history-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px dashed #1a3a33;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
-        
-        .title {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .title i {
-            font-size: 32px;
-            color: #00ff9d;
-            text-shadow: 0 0 20px #00ff9d;
-            animation: pulse 2s infinite;
-        }
-        
-        h1 {
-            font-size: 24px;
-            margin: 0;
-            background: linear-gradient(45deg, #00ff9d, #00cc88);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 3px;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-        
-        .stat-card {
-            background: rgba(0, 30, 25, 0.5);
-            border: 1px solid #1a4a40;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        .stat-value {
-            font-size: 48px;
-            font-weight: bold;
-            color: #00ff9d;
-            text-shadow: 0 0 20px #00ff9d;
-            line-height: 1.2;
-        }
-        
-        .stat-label {
-            color: #8892b0;
-            font-size: 14px;
-            text-transform: uppercase;
+
+        .history-title {
+            font-size: 1.4rem;
+            text-shadow: 0 0 8px cyan;
             letter-spacing: 2px;
-            margin-top: 5px;
         }
-        
-        .ip-table {
+
+        .export-btn {
+            background: transparent;
+            border: 2px solid #ff66cc;
+            color: #ffccff;
+            padding: 0.6rem 1.8rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 0 12px #ff44aa;
+            font-size: 0.95rem;
+        }
+        .export-btn:hover {
+            background: #ff44aa30;
+            box-shadow: 0 0 25px #ff80d0;
+        }
+
+        .history-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-        }
-        
-        .ip-table th {
-            text-align: left;
-            padding: 15px 10px;
-            background: rgba(0, 255, 157, 0.1);
-            color: #00ff9d;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            border-bottom: 2px solid #00ff9d;
-        }
-        
-        .ip-table td {
-            padding: 12px 10px;
-            border-bottom: 1px solid #1a3a33;
-            color: #ccd6f6;
-        }
-        
-        .ip-table tr:hover td {
-            background: rgba(0, 255, 157, 0.05);
-        }
-        
-        .rank-1 {
-            color: #ffd700;
-            font-weight: bold;
-        }
-        
-        .rank-2 {
-            color: #c0c0c0;
-            font-weight: bold;
-        }
-        
-        .rank-3 {
-            color: #cd7f32;
-            font-weight: bold;
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #1a3a33;
-            border-radius: 4px;
-            margin-top: 8px;
+            background: #030617b0;
+            border-radius: 1.5rem;
             overflow: hidden;
+            border: 1px solid #00ffff60;
+            backdrop-filter: blur(4px);
+            font-size: 0.8rem;
         }
-        
-        .progress-fill {
-            height: 100%;
-            background: #00ff9d;
-            border-radius: 4px;
-            box-shadow: 0 0 10px #00ff9d;
-            transition: width 0.3s;
+
+        .history-table th {
+            background: #0f1a3a;
+            color: #9ff;
+            font-weight: 500;
+            text-transform: uppercase;
+            padding: 0.8rem 0.3rem;
+            border-bottom: 2px solid cyan;
         }
-        
-        .refresh-btn {
-            background: transparent;
-            border: 1px solid #00ff9d;
-            color: #00ff9d;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
+
+        .history-table td {
+            padding: 0.7rem 0.4rem;
+            border-bottom: 1px solid #33ffff30;
+            color: #cef;
+            text-align: center;
+        }
+
+        .status-badge {
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.7rem;
+            text-transform: uppercase;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s;
-        }
-        
-        .refresh-btn:hover {
-            background: rgba(0, 255, 157, 0.1);
-            box-shadow: 0 0 20px rgba(0, 255, 157, 0.2);
-            transform: translateY(-2px);
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
-        
-        .footer {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #1a3a33;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #4a6a65;
-            font-size: 12px;
-        }
-        
-        .last-update {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .dot {
-            width: 10px;
-            height: 10px;
-            background: #00ff9d;
-            border-radius: 50%;
-            box-shadow: 0 0 15px #00ff9d;
-            animation: blink 1.5s infinite;
+            background: #2a2f5a;
+            border: 1px solid;
+            transition: 0.1s;
             display: inline-block;
-            margin-right: 8px;
         }
-        
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0.3; }
-            100% { opacity: 1; }
+        .status-pending { background: #5a4a2a; border-color: #ffaa33; color: #ffd966; }
+        .status-paid { background: #1e4a2a; border-color: #33ff99; color: #a0ffb0; }
+        .status-processing { background: #3a2f6a; border-color: #aa88ff; color: #ccbbff; }
+
+        .footnote {
+            font-size: 0.8rem;
+            color: #aab5e0;
+            margin-top: 1.2rem;
+            text-align: right;
+            opacity: 0.9;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <div class="title">
-                <i class="fas fa-chart-line"></i>
-                <h1>IP TRAFFIC ANALYZER</h1>
+        <!-- Левая карточка: форма -->
+        <div class="card">
+            <h2>⟣ ВВОД ДАННЫХ ⟢</h2>
+            <div class="form-group">
+                <label>📇 ID лога</label>
+                <input type="text" id="logId" placeholder="log-2025-02-18" value="log-42">
             </div>
-            <button class="refresh-btn" onclick="fetchData()">
-                <i class="fas fa-sync-alt"></i> ОБНОВИТЬ
-            </button>
+            <div class="form-group">
+                <label>🆔 Discord воркера</label>
+                <input type="text" id="workerDiscord" placeholder="@worker" value="cyber_igor">
+            </div>
+            <div class="form-group">
+                <label>💰 Сумма по стим ($)</label>
+                <input type="number" id="steamAmount" placeholder="0" value="300" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>💵 Сумма полученная ($)</label>
+                <input type="number" id="receivedAmount" placeholder="0.00" value="285.00" step="0.01">
+            </div>
+
+            <!-- был ли чатер? -->
+            <div class="form-group">
+                <label>👥 Был ли чатер?</label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="chatterToggle" value="yes" id="chatterYes"> ДА
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="chatterToggle" value="no" id="chatterNo" checked> НЕТ
+                    </label>
+                </div>
+            </div>
+
+            <!-- ник чатера -->
+            <div id="chatter-field" class="form-group conditional-field hidden">
+                <label>🎤 Ник чатера</label>
+                <input type="text" id="chatterNick" placeholder="chatter_nick" value="neon_sky">
+            </div>
+
+            <div class="form-group">
+                <label>🛠️ Хелпер (ник)</label>
+                <input type="text" id="helperNick" placeholder="helper_username" value="cyber_helper">
+            </div>
+            <div class="form-group">
+                <label>💳 Кошелек TRC20 (воркера)</label>
+                <input type="text" id="trc20" placeholder="TXYZ... (USDT)" value="TXneonAbc123...xyz">
+            </div>
+
+            <button class="calculate-btn" id="calcBtn">⟣ РАССЧИТАТЬ ⟢</button>
         </div>
-        
-        <!-- СТАТИСТИКА -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-value" id="totalRequests">0</div>
-                <div class="stat-label">ВСЕГО ЗАПРОСОВ</div>
+
+        <!-- Правая карточка: результаты + история с БД -->
+        <div class="card" id="resultCard">
+            <h2>⟣ ВЫПЛАТЫ / БД ⟢</h2>
+            
+            <!-- статус базы данных -->
+            <div class="db-status" id="dbStatus">
+                <div class="db-indicator">
+                    <span class="db-led" id="dbLed"></span>
+                    <span id="dbStatusText">файловая БД: data.json</span>
+                </div>
+                <button class="export-btn" id="refreshBtn" style="padding:0.3rem 1rem;">🔄 СИНХР.</button>
             </div>
-            <div class="stat-card">
-                <div class="stat-value" id="uniqueIps">0</div>
-                <div class="stat-label">УНИКАЛЬНЫХ IP</div>
+
+            <!-- Текущий расчёт -->
+            <div class="distr-label">база 95% от полученного</div>
+            <div class="distr-sum" id="distrBase">0.00 $</div>
+            <div class="distr-label">минус 5% сервера → распределяем 90%</div>
+            <div class="distr-sum" id="distrFinal" style="font-size: 2rem; color: #f9c;">0.00 $</div>
+
+            <div id="dynamicResults" style="margin-top: 1rem;"></div>
+
+            <div class="meta-line">
+                <span class="meta-label">📋 ID Лога:</span>
+                <span class="meta-value" id="displayLogId">—</span>
             </div>
-            <div class="stat-card">
-                <div class="stat-value" id="topRequest">0</div>
-                <div class="stat-label">МАКС. ЗАПРОСОВ</div>
+            <div class="meta-line trc20">
+                <span class="meta-label">💳 TRC20:</span>
+                <span class="meta-value" id="displayTrc">—</span>
             </div>
-        </div>
-        
-        <!-- ТАБЛИЦА IP -->
-        <h3 style="color: #00ff9d; margin-bottom: 15px;">
-            <i class="fas fa-crown"></i> ТОП IP-АДРЕСОВ
-        </h3>
-        
-        <table class="ip-table" id="ipTable">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>IP АДРЕС</th>
-                    <th>ЗАПРОСОВ</th>
-                    <th>% ОТ ВСЕХ</th>
-                    <th>ГРАФИК</th>
-                </tr>
-            </thead>
-            <tbody id="ipTableBody">
-                <tr>
-                    <td colspan="5" style="text-align: center; padding: 50px; color: #4a6a65;">
-                        <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 15px;"></i>
-                        <br>ЗАГРУЗКА ДАННЫХ...
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        
-        <div class="footer">
-            <div class="last-update">
-                <span class="dot"></span>
-                <span id="lastUpdate">ОБНОВЛЕНИЕ: СЕЙЧАС</span>
+
+            <!-- История с БД -->
+            <div class="history-section">
+                <div class="history-header">
+                    <span class="history-title">⟣ ИСТОРИЯ ИЗ ФАЙЛА ⟢</span>
+                    <button class="export-btn" id="exportExcelBtn">📥 EXCEL</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="history-table" id="historyTable">
+                        <thead>
+                            <tr>
+                                <th>ID лога</th>
+                                <th>Воркер</th>
+                                <th>Кошелек</th>
+                                <th>Чатер</th>
+                                <th>Хелпер</th>
+                                <th>Newton</th>
+                                <th>Megafrishka</th>
+                                <th>Сумма</th>
+                                <th>Статус</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyBody">
+                            <tr><td colspan="9" style="text-align:center; padding:2rem;">⏳ загрузка из БД...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div>
-                <i class="fas fa-shield-alt"></i> X-GEN MONITORING v1.0
-            </div>
+            <div class="footnote">✧ данные хранятся в data.json (файловая БД)</div>
         </div>
     </div>
 
-    <!-- FONTAWESOME -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <!-- Подключаем библиотеки -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-        // ================ БАЗА ДАННЫХ IP (ЛОКАЛЬНОЕ ХРАНИЛИЩЕ) ================
-        let ipDatabase = {};
-        
-        // ================ ИНИЦИАЛИЗАЦИЯ ================
-        document.addEventListener('DOMContentLoaded', function() {
-            // Загружаем существующие данные
-            loadData();
-            
-            // Запускаем автоматическое обновление каждые 5 секунд
-            setInterval(fetchData, 5000);
-        });
-        
-        // ================ ЗАГРУЗКА ДАННЫХ ИЗ LOCALSTORAGE ================
-        function loadData() {
-            const saved = localStorage.getItem('ip_traffic_db');
-            if (saved) {
-                try {
-                    ipDatabase = JSON.parse(saved);
-                } catch(e) {
-                    ipDatabase = {};
+        (function() {
+            // Конфигурация - замените на свои данные после деплоя бэкенда
+            const CONFIG = {
+                // Для локального теста используем JSON Server или фейковый API
+                // В продакшене заменить на реальный URL бэкенда
+                API_URL: 'http://x.elita313.beget.tech/api.php', // пример JSONbin (замените!)
+                USE_MOCK: false // пока нет сервера, используем localStorage + мок
+            };
+
+            // DOM элементы
+            const logIdInput = document.getElementById('logId');
+            const workerInput = document.getElementById('workerDiscord');
+            const receivedInput = document.getElementById('receivedAmount');
+            const chatterYes = document.getElementById('chatterYes');
+            const chatterNo = document.getElementById('chatterNo');
+            const chatterField = document.getElementById('chatter-field');
+            const chatterNickInput = document.getElementById('chatterNick');
+            const helperInput = document.getElementById('helperNick');
+            const trcInput = document.getElementById('trc20');
+
+            const distrBaseSpan = document.getElementById('distrBase');
+            const distrFinalSpan = document.getElementById('distrFinal');
+            const dynamicResults = document.getElementById('dynamicResults');
+            const displayLogId = document.getElementById('displayLogId');
+            const displayTrc = document.getElementById('displayTrc');
+            const historyBody = document.getElementById('historyBody');
+            const calcBtn = document.getElementById('calcBtn');
+            const exportBtn = document.getElementById('exportExcelBtn');
+            const refreshBtn = document.getElementById('refreshBtn');
+            const dbLed = document.getElementById('dbLed');
+            const dbStatusText = document.getElementById('dbStatusText');
+
+            // Хранилище данных
+            let historyData = [];
+
+            // ---- управление полем чатера ----
+            function toggleChatterField() {
+                if (chatterYes.checked) {
+                    chatterField.classList.remove('hidden');
+                } else {
+                    chatterField.classList.add('hidden');
                 }
             }
-            updateDisplay();
-        }
-        
-        // ================ СОХРАНЕНИЕ ДАННЫХ ================
-        function saveData() {
-            localStorage.setItem('ip_traffic_db', JSON.stringify(ipDatabase));
-        }
-        
-        // ================ ПОЛУЧЕНИЕ IP ПОСЕТИТЕЛЯ ================
-        async function getVisitorIP() {
-            try {
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                return data.ip;
-            } catch(e) {
-                // Если не удалось получить IP, генерируем случайный
-                return '127.0.0.' + Math.floor(Math.random() * 255);
+            chatterYes.addEventListener('change', toggleChatterField);
+            chatterNo.addEventListener('change', toggleChatterField);
+            toggleChatterField();
+
+            // ---- формат денег ----
+            const formatUSD = (val) => val.toFixed(2) + ' $';
+
+            // ---- обновление статуса БД ----
+            function setDBStatus(online, message) {
+                if (online) {
+                    dbLed.className = 'db-led';
+                    dbStatusText.innerText = message || 'БД подключена';
+                } else {
+                    dbLed.className = 'db-led off';
+                    dbStatusText.innerText = message || 'локальное хранилище';
+                }
             }
-        }
-        
-        // ================ ДОБАВЛЕНИЕ ЗАПРОСА ================
-        async function addRequest() {
-            const ip = await getVisitorIP();
-            
-            if (!ipDatabase[ip]) {
-                ipDatabase[ip] = {
-                    count: 0,
-                    firstSeen: new Date().toLocaleString(),
-                    lastSeen: new Date().toLocaleString()
-                };
+
+            // ---- загрузка из базы данных ----
+            async function loadFromDatabase() {
+                try {
+                    setDBStatus(false, 'загрузка...');
+                    
+                    // Пытаемся загрузить из JSONbin (или другого API)
+                    if (!CONFIG.USE_MOCK) {
+                        const response = await axios.get(CONFIG.API_URL, {
+                            headers: {
+                                'X-Master-Key': CONFIG.API_KEY
+                            }
+                        });
+                        historyData = response.data.record || [];
+                        setDBStatus(true, 'БД онлайн');
+                    } else {
+                        // Мок-режим - используем localStorage как общую БД
+                        const localData = localStorage.getItem('neon_payouts_db');
+                        if (localData) {
+                            historyData = JSON.parse(localData);
+                        } else {
+                            // Начальные демо-данные
+                            historyData = [
+                                {
+                                    logId: 'log-40',
+                                    worker: 'mike_core',
+                                    workerAmount: '112.50 $',
+                                    wallet: 'TXYZdemo111...',
+                                    chatter: 'luna',
+                                    chatterAmount: '28.12 $',
+                                    helper: 'alex',
+                                    helperAmount: '16.87 $',
+                                    newtonAmount: '28.12 $',
+                                    megafrishkaAmount: '28.12 $',
+                                    totalDistr: '213.75 $',
+                                    status: 'выплачено'
+                                },
+                                {
+                                    logId: 'log-39',
+                                    worker: 'neo_driver',
+                                    workerAmount: '152.00 $',
+                                    wallet: 'TXYZdemo222...',
+                                    chatter: null,
+                                    chatterAmount: '',
+                                    helper: 'sam',
+                                    helperAmount: '22.80 $',
+                                    newtonAmount: '38.00 $',
+                                    megafrishkaAmount: '38.00 $',
+                                    totalDistr: '288.80 $',
+                                    status: 'в обработке'
+                                }
+                            ];
+                            localStorage.setItem('neon_payouts_db', JSON.stringify(historyData));
+                        }
+                        setDBStatus(false, 'локальная БД (общая)');
+                    }
+                    
+                    renderHistory();
+                } catch (error) {
+                    console.error('Ошибка загрузки из БД:', error);
+                    setDBStatus(false, 'ошибка, локальная БД');
+                    
+                    // Пробуем загрузить из localStorage
+                    const localData = localStorage.getItem('neon_payouts_db');
+                    if (localData) {
+                        historyData = JSON.parse(localData);
+                    }
+                    renderHistory();
+                }
             }
-            
-            ipDatabase[ip].count++;
-            ipDatabase[ip].lastSeen = new Date().toLocaleString();
-            
-            saveData();
-            updateDisplay();
-            
-            return ip;
-        }
-        
-        // ================ ОБНОВЛЕНИЕ ОТОБРАЖЕНИЯ ================
-        function updateDisplay() {
-            // Сортируем IP по количеству запросов
-            const sortedIPs = Object.entries(ipDatabase)
-                .map(([ip, data]) => ({ ip, ...data }))
-                .sort((a, b) => b.count - a.count);
-            
-            // Общая статистика
-            const totalRequests = sortedIPs.reduce((sum, item) => sum + item.count, 0);
-            const uniqueIPs = sortedIPs.length;
-            const topRequest = sortedIPs[0]?.count || 0;
-            
-            // Обновляем статистику
-            document.getElementById('totalRequests').innerText = totalRequests.toLocaleString();
-            document.getElementById('uniqueIps').innerText = uniqueIPs;
-            document.getElementById('topRequest').innerText = topRequest.toLocaleString();
-            
-            // Обновляем таблицу
-            const tbody = document.getElementById('ipTableBody');
-            
-            if (sortedIPs.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" style="text-align: center; padding: 50px; color: #4a6a65;">
-                            <i class="fas fa-info-circle" style="font-size: 24px; margin-bottom: 15px;"></i>
-                            <br>НЕТ ДАННЫХ. НАЖМИТЕ "ОБНОВИТЬ" ДЛЯ ТЕСТОВОГО ЗАПРОСА.
-                        </td>
-                    </tr>
-                `;
-                return;
+
+            // ---- сохранение в базу данных ----
+            async function saveToDatabase() {
+                try {
+                    if (!CONFIG.USE_MOCK) {
+                        await axios.put(CONFIG.API_URL, historyData, {
+                            headers: {
+                                'X-Master-Key': CONFIG.API_KEY,
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        setDBStatus(true, 'БД онлайн');
+                    } else {
+                        // Сохраняем в localStorage
+                        localStorage.setItem('neon_payouts_db', JSON.stringify(historyData));
+                        setDBStatus(false, 'локальная БД');
+                    }
+                } catch (error) {
+                    console.error('Ошибка сохранения в БД:', error);
+                    setDBStatus(false, 'ошибка сохранения');
+                }
             }
-            
-            tbody.innerHTML = sortedIPs.slice(0, 15).map((item, index) => {
-                const percentage = totalRequests > 0 ? ((item.count / totalRequests) * 100).toFixed(1) : 0;
+
+            // ---- рендер таблицы истории ----
+            function renderHistory() {
+                if (historyData.length === 0) {
+                    historyBody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:2rem;">📭 история пуста</td></tr>';
+                    return;
+                }
                 
-                let rankClass = '';
-                if (index === 0) rankClass = 'rank-1';
-                else if (index === 1) rankClass = 'rank-2';
-                else if (index === 2) rankClass = 'rank-3';
-                
-                return `
-                    <tr>
-                        <td><span class="${rankClass}">#${index + 1}</span></td>
-                        <td style="font-family: 'Space Mono', monospace;">
-                            ${index === 0 ? '<i class="fas fa-crown" style="color: #ffd700; margin-right: 8px;"></i>' : ''}
-                            ${item.ip}
+                let html = '';
+                // последние сверху
+                historyData.slice().reverse().forEach((entry, idx) => {
+                    const statusClass = 
+                        entry.status === 'выплачено' ? 'status-paid' : 
+                        entry.status === 'в обработке' ? 'status-processing' : 'status-pending';
+                    
+                    html += `<tr>
+                        <td>${entry.logId}</td>
+                        <td>${entry.worker} ${entry.workerAmount || ''}</td>
+                        <td style="max-width:150px; overflow:hidden; text-overflow:ellipsis;">${entry.wallet || '—'}</td>
+                        <td>${entry.chatter ? entry.chatter + ' ' + (entry.chatterAmount || '') : '—'}</td>
+                        <td>${entry.helper} ${entry.helperAmount || ''}</td>
+                        <td>${entry.newtonAmount || ''}</td>
+                        <td>${entry.megafrishkaAmount || ''}</td>
+                        <td>${entry.totalDistr || ''}</td>
+                        <td>
+                            <span class="status-badge ${statusClass}" data-idx="${historyData.length - 1 - idx}">
+                                ${entry.status || 'ожидает'}
+                            </span>
                         </td>
-                        <td style="color: #00ff9d; font-weight: bold;">${item.count.toLocaleString()}</td>
-                        <td>${percentage}%</td>
-                        <td style="width: 200px;">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: ${percentage}%;"></div>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-            
-            // Обновляем время
-            document.getElementById('lastUpdate').innerHTML = `ОБНОВЛЕНИЕ: ${new Date().toLocaleTimeString()}`;
-        }
-        
-        // ================ ОСНОВНАЯ ФУНКЦИЯ ================
-        async function fetchData() {
-            // Добавляем тестовый запрос (в реальности это делает сервер)
-            await addRequest();
-            
-            // Анимация кнопки
-            const btn = document.querySelector('.refresh-btn i');
-            btn.style.transform = 'rotate(180deg)';
-            setTimeout(() => {
-                btn.style.transform = 'rotate(0deg)';
-            }, 300);
-        }
-        
-        // ================ ДЕМО-РЕЖИМ ================
-        function generateDemoData() {
-            // Генерируем тестовые данные если их нет
-            if (Object.keys(ipDatabase).length === 0) {
-                const demoIPs = [
-                    '45.123.45.67', '89.123.45.67', '176.45.23.89',
-                    '192.168.1.1', '10.0.0.1', '172.16.0.1',
-                    '84.52.124.33', '213.180.204.8', '95.108.129.78',
-                    '77.88.55.66', '31.13.79.246', '66.220.144.0'
-                ];
-                
-                demoIPs.forEach(ip => {
-                    ipDatabase[ip] = {
-                        count: Math.floor(Math.random() * 150) + 10,
-                        firstSeen: new Date().toLocaleString(),
-                        lastSeen: new Date().toLocaleString()
-                    };
+                    </tr>`;
                 });
-                
-                // Делаем один IP лидером
-                const topIP = demoIPs[0];
-                ipDatabase[topIP].count = 342;
-                
-                saveData();
-                updateDisplay();
+                historyBody.innerHTML = html;
+
+                // обработчики статусов
+                document.querySelectorAll('.status-badge').forEach(badge => {
+                    badge.addEventListener('click', async function(e) {
+                        const idx = this.dataset.idx;
+                        if (idx !== undefined) {
+                            const current = historyData[idx];
+                            const nextStatus = 
+                                current.status === 'ожидает выплаты' ? 'в обработке' :
+                                current.status === 'в обработке' ? 'выплачено' : 'ожидает выплаты';
+                            historyData[idx].status = nextStatus;
+                            
+                            // Сохраняем в БД
+                            await saveToDatabase();
+                            renderHistory();
+                        }
+                    });
+                });
             }
-        }
-        
-        // Запускаем демо-данные при первой загрузке
-        generateDemoData();
+
+            // ---- добавить текущий расчёт в историю ----
+            async function addCurrentToHistory() {
+                const logId = logIdInput.value.trim() || '—';
+                const worker = workerInput.value.trim() || 'воркер';
+                const wallet = trcInput.value.trim() || '—';
+                const chatter = chatterYes.checked ? (chatterNickInput.value.trim() || 'чатер') : null;
+                const helper = helperInput.value.trim() || 'хелпер';
+                const received = parseFloat(receivedInput.value) || 0;
+
+                // расчёт
+                const base = received * 0.95;
+                const finalDistr = base * 0.90;
+                
+                const hasChatter = chatterYes.checked;
+                let workerPercent = hasChatter ? 65 : 80;
+                let chatterPercent = hasChatter ? 15 : 0;
+                const helperPercent = 3;
+                const remainingPercent = 17;
+                
+                const workerPart = finalDistr * (workerPercent / 100);
+                const chatterPart = hasChatter ? finalDistr * (chatterPercent / 100) : 0;
+                const helperPart = finalDistr * (helperPercent / 100);
+                const newtonPart = finalDistr * (remainingPercent / 2 / 100);
+                const megafrishkaPart = finalDistr * (remainingPercent / 2 / 100);
+
+                // создаём запись
+                const newEntry = {
+                    logId: logId,
+                    worker: worker,
+                    workerAmount: formatUSD(workerPart),
+                    wallet: wallet,
+                    chatter: hasChatter ? (chatterNickInput.value.trim() || 'чатер') : null,
+                    chatterAmount: hasChatter ? formatUSD(chatterPart) : '',
+                    helper: helper,
+                    helperAmount: formatUSD(helperPart),
+                    newtonAmount: formatUSD(newtonPart),
+                    megafrishkaAmount: formatUSD(megafrishkaPart),
+                    totalDistr: formatUSD(finalDistr),
+                    status: 'ожидает выплаты',
+                    timestamp: new Date().toISOString()
+                };
+
+                historyData.push(newEntry);
+                await saveToDatabase();
+                renderHistory();
+            }
+
+            // ---- основной расчёт ----
+            function calculateAndDisplay() {
+                const logId = logIdInput.value.trim() || '—';
+                const workerNick = workerInput.value.trim() || 'воркер';
+                const helperNick = helperInput.value.trim() || 'хелпер';
+                const chatterNick = chatterNickInput.value.trim() || 'чатер';
+                const trc = trcInput.value.trim() || '—';
+                const received = parseFloat(receivedInput.value) || 0;
+
+                const hasChatter = chatterYes.checked;
+
+                const base = received * 0.95;
+                const finalDistr = base * 0.90;
+
+                let workerPercent = hasChatter ? 65 : 80;
+                let chatterPercent = hasChatter ? 15 : 0;
+                const helperPercent = 3;
+                const remainingPercent = 17;
+
+                const workerPart = finalDistr * (workerPercent / 100);
+                const chatterPart = hasChatter ? finalDistr * (chatterPercent / 100) : 0;
+                const helperPart = finalDistr * (helperPercent / 100);
+                const newtonPart = finalDistr * (remainingPercent / 2 / 100);
+                const megafrishkaPart = finalDistr * (remainingPercent / 2 / 100);
+
+                distrBaseSpan.innerText = formatUSD(base);
+                distrFinalSpan.innerText = formatUSD(finalDistr);
+
+                let html = '';
+                html += `<div class="result-line worker"><span class="role-icon">👤 Воркер [${workerNick}]</span><span class="role-value">${formatUSD(workerPart)}</span></div>`;
+                if (hasChatter) {
+                    html += `<div class="result-line chatter"><span class="role-icon">🗣️ Чатер [${chatterNick}]</span><span class="role-value">${formatUSD(chatterPart)}</span></div>`;
+                }
+                html += `<div class="result-line helper"><span class="role-icon">🛠️ Хелпер [${helperNick}]</span><span class="role-value">${formatUSD(helperPart)}</span></div>`;
+                html += `<div class="result-line newton"><span class="role-icon">💎 Newton</span><span class="role-value">${formatUSD(newtonPart)}</span></div>`;
+                html += `<div class="result-line megafrishka"><span class="role-icon">💎 Megafrishka</span><span class="role-value">${formatUSD(megafrishkaPart)}</span></div>`;
+                dynamicResults.innerHTML = html;
+
+                displayLogId.innerText = logId;
+                displayTrc.innerText = trc;
+
+                // добавляем в историю
+                addCurrentToHistory();
+            }
+
+            // ---- экспорт в Excel ----
+            function exportToExcel() {
+                if (historyData.length === 0) {
+                    alert('История пуста');
+                    return;
+                }
+
+                const headers = ['ID лога', 'Воркер (сумма)', 'Кошелек TRC20', 'Чатер (сумма)', 'Хелпер (сумма)', 'Newton', 'Megafrishka', 'Всего', 'Статус'];
+                const rows = [];
+
+                historyData.slice().reverse().forEach(e => {
+                    rows.push([
+                        e.logId,
+                        `${e.worker} ${e.workerAmount || ''}`,
+                        e.wallet || '—',
+                        e.chatter ? `${e.chatter} ${e.chatterAmount || ''}` : '—',
+                        `${e.helper} ${e.helperAmount || ''}`,
+                        e.newtonAmount || '',
+                        e.megafrishkaAmount || '',
+                        e.totalDistr || '',
+                        e.status || 'ожидает'
+                    ]);
+                });
+
+                let csvContent = headers.join('\t') + '\n';
+                rows.forEach(row => {
+                    csvContent += row.join('\t') + '\n';
+                });
+
+                const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'neon_payouts.xls';
+                link.click();
+            }
+
+            // ---- обработчики ----
+            calcBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                calculateAndDisplay();
+            });
+
+            exportBtn.addEventListener('click', exportToExcel);
+            refreshBtn.addEventListener('click', loadFromDatabase);
+
+            // инициализация - загружаем данные
+            loadFromDatabase();
+
+            // для теста: показываем текущий расчёт при загрузке
+            window.addEventListener('load', () => {
+                // небольшой расчёт для первоначального отображения
+                setTimeout(() => {
+                    calculateAndDisplay();
+                }, 200);
+            });
+        })();
     </script>
 </body>
 </html>
